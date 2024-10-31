@@ -1,0 +1,61 @@
+---
+kafka:
+  bootstrap:
+    servers: "http://localhost:9092"
+  schema:
+    registry:
+      url: "http://localhost:8081"
+  application:
+    server: "localhost:9090"
+  compression:
+    type: "gzip"
+  cache:
+    max:
+      bytes:
+        buffering: 104857600 # 100 MiB
+  commit:
+    interval:
+      ms: 30000 # 30 sec
+  request:
+    timeout:
+      ms: 1000
+  auto:
+    offset:
+      reset: "earliest"
+  num:
+    standby:
+      replicas: 1
+
+server:
+  port: 8080
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+      show-details: "always"
+      group:
+        liveness:
+          include: "ping,kafkaStreamsLiveness"
+        readiness:
+          include: "diskSpace,kafkaStreamsReadiness"
+    metrics:
+      enabled: true
+
+publishing:
+  interval:
+    ms: 300000
+  message:
+    request:
+      size: 3000000
+logging:
+  level:
+    root: INFO
+    org.springframework.web: ERROR
+
+topics:
+  num-partitions: 20
+  replication-factor: 2

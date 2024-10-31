@@ -1,0 +1,312 @@
+apiVersion: skaffold/v2beta2
+kind: Config
+build:
+  artifacts:
+    - image: cedardevs/onestop-indexer
+      jib:
+        project: indexer
+        type: gradle
+    - image: cedardevs/onestop-registry
+      jib:
+        project: registry
+        type: gradle
+    - image: cedardevs/onestop-parsalyzer
+      jib:
+        project: parsalyzer
+        type: gradle
+    - image: cedardevs/onestop-search
+      jib:
+        project: search
+        type: gradle
+    - image: cedardevs/onestop-client
+      jib:
+        project: client
+        type: gradle
+    - image: cedardevs/onestop-user
+      jib:
+        project: user
+        type: gradle
+    - image: cedardevs/onestop-gateway
+      jib:
+        project: gateway
+        type: gradle
+.onestop-indexer: &onestop-indexer
+  name: onestop-indexer
+  chartPath: helm/onestop-indexer
+  remote: false
+  values:
+    image: cedardevs/onestop-indexer
+  setValues:
+    elasticsearch.host: "onestop-dev-es-http"
+    elasticsearch.ssl.certSecret: "onestop-dev-es-http-certs-public"
+    elasticsearch.password.valueFrom.secretKeyRef.name: "onestop-dev-es-elastic-user"
+    config: |-
+      ---
+      kafka:
+        bootstrap:
+          servers: "PLAINTEXT://onestop-dev-cp-kafka:9092"
+        schema:
+          registry:
+            url: "http://onestop-dev-cp-schema-registry:8081"
+        commit:
+          interval:
+            ms: 1000
+  imageStrategy:
+    helm: {}
+.onestop-registry: &onestop-registry
+  name: onestop-registry
+  chartPath: helm/onestop-registry
+  remote: false
+  values:
+    image: cedardevs/onestop-registry
+  setValues:
+    config: |-
+      ---
+      logging:
+        level:
+          org.cedar: DEBUG
+          org.cedar.schemas.avro.util: INFO
+      kafka.commit.interval: 1000
+      topics:
+        num-partitions: 2
+        replication-factor: 1
+      cas:
+        prefixUrl: 'http://onestop-dev-cas:8080/cas'
+      authorization:
+        roles:
+          ROLE_ADMIN:
+            - casuser
+      api:
+        root:
+          url: http://localhost/onestop/api/registry
+    debug: "true"
+    features.cas: "false"
+    kafka.bootstrap.servers: PLAINTEXT://onestop-dev-cp-kafka:9092
+    kafka.schema.registry.url: http://onestop-dev-cp-schema-registry:8081
+    replicaCount: "1"
+    service.clusterIP: 10.100.100.1
+  imageStrategy:
+    helm: {}
+.onestop-parsalyzer : &onestop-parsalyzer
+  name: onestop-parsalyzer
+  chartPath: helm/onestop-parsalyzer
+  remote: false
+  values:
+    image: cedardevs/onestop-parsalyzer
+  setValues:
+    config: |-
+      ---
+      logging:
+        level:
+          org.cedar: DEBUG
+          org.cedar.schemas.avro.util: INFO
+      kafka.commit.interval: 1000
+    kafka.bootstrap.servers: PLAINTEXT://onestop-dev-cp-kafka:9092
+    kafka.schema.registry.url: http://onestop-dev-cp-schema-registry:8081
+  imageStrategy:
+    helm: {}
+.onestop-search: &onestop-search
+  name: onestop-search
+  chartPath: helm/onestop-search
+  remote: false
+  values:
+    image: cedardevs/onestop-search
+  setValues:
+    elasticsearch.host: "onestop-dev-es-http"
+    elasticsearch.ssl.certSecret: "onestop-dev-es-http-certs-public"
+    elasticsearch.password.valueFrom.secretKeyRef.name: "onestop-dev-es-elastic-user"
+    elasticsearch.snapshot.enabled: true
+    elasticsearch.snapshot.repo: "test-data"
+    elasticsearch.snapshot.bucket: "https://cedar-snapshots.s3.amazonaws.com/elastic-test-data"
+    env.SITEMAP_API_PATH: http://localhost/onestop/api/search
+    env.SITEMAP_CLIENT_PATH: http://localhost/onestop
+    env.UI_AUTH_LOGINENDPOINT: http://localhost/onestop/oauth2/authorization/login-gov
+    env.UI_AUTH_LOGOUTENDPOINT: http://localhost/onestop/logout
+    env.UI_AUTH_USERPROFILEENDPOINT: http://localhost/onestop/api/user/v1/self
+    env.UI_AUTH_SAVEDSEARCHENDPOINT: http://localhost/onestop/api/user/v1/self/saved-search
+    features.login-gov: "true"
+    features.sitemap: "true"
+    service.nodePort: "30097"
+    service.clusterIP: 10.100.100.2
+    service.type: NodePort
+    config: |-
+      ---
+      api:
+        root:
+          url: http://localhost/onestop/api/search
+  imageStrategy:
+    helm: {}
+.onestop-client: &onestop-client
+  name: onestop-client
+  chartPath: helm/onestop-client
+  remote: false
+  values:
+    image: cedardevs/onestop-client
+  setValues:
+    apiSearch.endpoint: onestop-search:8080
+    prefixPath: onestop
+    service.clusterIP: 10.100.100.3
+  imageStrategy:
+    helm: {}
+.onestop-user: &onestop-user
+  name: onestop-user
+  chartPath: helm/onestop-user
+  remote: false
+  values:
+    image: cedardevs/onestop-user
+  imageStrategy:
+    helm: {}
+  setValues:
+    debug: "true"
+    features.security: "true"
+    service.clusterIP: 10.100.100.4
+    config: |-
+      ---
+      logging.level.org.springframework.security: DEBUG
+      logging.level.org.springframework.web: DEBUG
+      logging.level.org.springframework.jdbc: DEBUG
+      spring:
+        datasource:
+          url: jdbc:postgresql://onestop-postgresql:5432/user
+          username: postgres
+          password: foamcat
+        jpa:
+          database: POSTGRESQL
+          show-sql: true
+          properties:
+            hibernate:
+              dialect: org.hibernate.dialect.PostgreSQLDialect
+          hibernate:
+            ddl-auto: update
+.onestop-gateway: &onestop-gateway
+  name: onestop-gateway
+  chartPath: helm/onestop-gateway
+  remote: false
+  values:
+    image: cedardevs/onestop-gateway
+  imageStrategy:
+    helm: {}
+  setValues:
+    debug: "true"
+    service.clusterIP: 10.100.100.0
+    config: |-
+      ---
+      logging.level.org.springframework.security: DEBUG
+      logging.level.org.springframework.web: DEBUG
+      login-gov:
+        keystore:
+          alias: ${PRIVATE_KEY_JWT_KEYSTORE_ALIAS}
+          file: ${PRIVATE_KEY_JWT_KEYSTORE_FILE}
+          password: ${PRIVATE_KEY_JWT_KEYSTORE_PASSWORD}
+          type: ${PRIVATE_KEY_JWT_KEYSTORE_TYPE}
+
+.onestop-postgresql: &onestop-postgresql
+  name: onestop-postgresql
+  chartPath: helm/onestop-postgresql
+#  upgradeOnChange: false
+.onestop-net-tools: &onestop-net-tools
+  name: onestop-net-tools
+  chartPath: helm/onestop-net-tools
+#  upgradeOnChange: false
+.onestop-ingress: &onestop-ingress
+  name: onestop-ingress
+  chartPath: helm/onestop-ingress
+#  upgradeOnChange: false
+deploy:
+  kubectl:
+  helm:
+    releases:
+      - *onestop-indexer
+      - *onestop-registry
+      - *onestop-parsalyzer
+      - *onestop-search
+      - *onestop-client
+      - *onestop-user
+      - *onestop-gateway
+      - *onestop-ingress
+      - *onestop-postgresql
+      - name: onestop-dev
+        chartPath: helm/onestop-dev
+profiles:
+  - name: psi
+    deploy:
+      helm:
+        releases:
+          - *onestop-gateway
+          - *onestop-parsalyzer
+          - *onestop-registry
+          - name: onestop-dev
+            chartPath: helm/onestop-dev
+  - name: os
+    deploy:
+      helm:
+        releases:
+          - *onestop-gateway
+          - *onestop-search
+          - *onestop-client
+          - name: onestop-dev
+            chartPath: helm/onestop-dev
+            setValues:
+              cp-kafka.enabled: "false"
+              cp-schema-registry.enabled: "false"
+              cp-zookeeper.enabled: "false"
+  - name: user
+    deploy:
+      helm:
+        releases:
+          - *onestop-search
+          - *onestop-client
+          - *onestop-gateway
+          - *onestop-user
+          - *onestop-postgresql
+          - *onestop-ingress
+          - name: onestop-dev
+            chartPath: helm/onestop-dev
+            setValues:
+              cp-kafka.enabled: "false"
+              cp-schema-registry.enabled: "false"
+              cp-zookeeper.enabled: "false"
+
+  - name: postgres
+    deploy:
+      helm:
+        releases:
+          - *onestop-postgresql
+
+  - name: minus-user
+    deploy:
+      helm:
+        releases:
+          - *onestop-indexer
+          - *onestop-registry
+          - *onestop-parsalyzer
+          - *onestop-search
+          - *onestop-client
+          - *onestop-gateway
+          - *onestop-ingress
+          - name: onestop-dev
+            chartPath: helm/onestop-dev
+
+  - name: search
+    deploy:
+      helm:
+        releases:
+          - *onestop-search
+          - *onestop-gateway
+          - *onestop-ingress
+          - name: onestop-dev
+            chartPath: helm/onestop-dev
+
+  - name: minus-user
+    deploy:
+      helm:
+        releases:
+          - *onestop-registry
+          - *onestop-parsalyzer
+          - *onestop-indexer
+          - *onestop-search
+          - *onestop-client
+          - *onestop-gateway
+          - *onestop-ingress
+          - name: onestop-dev
+            chartPath: helm/onestop-dev

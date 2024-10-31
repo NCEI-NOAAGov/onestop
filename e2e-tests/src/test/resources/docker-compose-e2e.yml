@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  client:
+    image: cedardevs/onestop-client:latest
+    ports:
+      - 8080:80
+    depends_on:
+      - search
+    environment:
+      - "ONESTOP_SEARCH_API_ENDPOINT=search:8097"
+
+  search:
+    image: cedardevs/onestop-search:latest
+    ports:
+      - 8097:8080
+    depends_on:
+      - elasticsearch
+    environment:
+      - elasticsearch.host=elasticsearch
+      - elasticsearch.port=9200
+      - logging_level_org.cedar.onestop.api=DEBUG
+
+  admin:
+    image: cedardevs/onestop-admin:latest
+    ports:
+      - 8098:8080
+    depends_on:
+      - elasticsearch
+    environment:
+      - elasticsearch.host=elasticsearch
+      - elasticsearch.port=9200
+      - logging_level_org.cedar.onestop.api=DEBUG
+      - spring.profiles.active=securitydisabled,kafkadisabled
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${esVersion}
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS: "-Xms750m -Xmx750m" # Customize the JVM maximum heap limit (will crash container if too high on Circle)
+    ports:
+      - 9300:9300
+      - 9200:9200

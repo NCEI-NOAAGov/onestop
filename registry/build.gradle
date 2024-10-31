@@ -1,0 +1,171 @@
+import com.moowork.gradle.node.npm.NpmTask
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+configurations {
+  implementation.exclude module: 'tomcat-annotations-api', group: 'org.apache.tomcat'
+  testImplementation.exclude(group: 'ch.qos.logback')
+  integrationTestImplementation.extendsFrom testImplementation
+  integrationTestRuntime.extendsFrom testRuntime
+  integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+
+  schemaDefinitions
+}
+
+dependencies {
+  def Versions = project.Versions
+
+  implementation(project(':data-common'))
+
+  implementation("org.codehaus.groovy:groovy:${Versions.GROOVY}")
+  implementation("org.codehaus.groovy:groovy-json:${Versions.GROOVY}")
+  implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation("org.springframework.boot:spring-boot-starter-webflux")
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
+  implementation("org.apache.kafka:kafka-streams:${Versions.KAFKA}")
+  implementation("org.apache.kafka:kafka-clients:${Versions.KAFKA}")
+  implementation("io.confluent:kafka-streams-avro-serde:${Versions.CONFLUENT}")
+  implementation("com.github.cedardevs.schemas:schemas-core:${Versions.ONESTOP_SCHEMAS}")
+  implementation(project(':kafka-common'))
+  implementation('org.json:json:20230227')
+  implementation('javax.validation:validation-api:2.0.1.Final')
+  implementation("org.hibernate.validator:hibernate-validator:6.0.2.Final")
+
+  // -- CAS Authentication --
+  implementation "org.pac4j:spring-webmvc-pac4j:4.0.1"
+  implementation "org.pac4j:pac4j-cas:${Versions.PAC4J}"
+
+  //used to copy schema definitions to generate openAPI
+  schemaDefinitions ("com.github.cedardevs.schemas:schemas-core:${Versions.ONESTOP_SCHEMAS}")
+
+  compileOnly("org.springframework.boot:spring-boot-starter-tomcat")
+  compileOnly("org.springframework.boot:spring-boot-devtools")
+
+  testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.spockframework:spock-spring:${Versions.SPOCK}")
+  testImplementation("org.spockframework:spock-core:${Versions.SPOCK}")
+  testImplementation("org.codehaus.groovy.modules.http-builder:http-builder:0.7.1")
+  testImplementation("org.springframework.kafka:spring-kafka-test:2.9.5")
+  testImplementation("org.apache.kafka:kafka-streams-test-utils:${Versions.KAFKA}")
+  testImplementation("org.apache.kafka:kafka-clients:${Versions.KAFKA}:test")
+  testImplementation("org.apache.kafka:kafka_2.12:${Versions.KAFKA}")
+  testImplementation("org.apache.kafka:kafka_2.12:${Versions.KAFKA}:test")
+  testImplementation("io.confluent:kafka-schema-registry:${Versions.CONFLUENT}")
+  testImplementation("io.confluent:kafka-schema-registry:${Versions.CONFLUENT}:tests")
+  testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
+  testImplementation("com.github.cedardevs.schemas:schemas-core:${Versions.ONESTOP_SCHEMAS}:test")
+}
+
+sourceSets {
+  integrationTest {
+    compileClasspath += sourceSets.main.output + sourceSets.test.output
+    runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    groovy.srcDir file('src/integrationTest/groovy')
+    resources.srcDir file('src/integrationTest/resources')
+  }
+}
+
+task integrationTest(type: Test) {
+  description = 'Runs the integration tests'
+  group = 'verification'
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  outputs.upToDateWhen { false }
+  shouldRunAfter test
+
+  reports.junitXml.destination = file("${buildDir}/integration-test-results")
+  reports.html.destination =  file("${buildDir}/reports/integrationTests")
+}
+// Due to gradle 7 not setting a default duplicate handling strategy, duplicate application*.yml files.
+// https://docs.gradle.org/7.4/dsl/org.gradle.api.tasks.Copy.html#org.gradle.api.tasks.Copy:duplicatesStrategy
+processIntegrationTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+bootJar {
+  archiveClassifier.set('all') // add a classifier to distinguish the executable jar
+  archiveBaseName.set("${rootProject.name}-${project.name}")
+  launchScript()
+}
+
+task sourceJar(type: Jar) {
+  archiveClassifier.set('sources')
+  archiveBaseName.set("${rootProject.name}-${project.name}")
+  from "${projectDir}/src"
+}
+
+task extractSchemaDefinitions(type: Copy) {
+  dependsOn configurations.schemaDefinitions
+  from { // use of closure defers evaluation until execution time
+    configurations.schemaDefinitions.collect {
+      zipTree(it).matching{
+        include 'json/schema-definitions.json'
+      }
+    }
+  }
+
+  into "$buildDir/resources/main"
+}
+
+// NOTE: The 'build' task defined in package.json pipes the output directly to the output file
+task generateOpenApi(type: NpmTask) {
+  dependsOn npmInstall, extractSchemaDefinitions
+  args = ['run', 'build']
+  outputs.file("$buildDir/resources/main/static/openapi.yaml")
+}
+
+task retire(type: NpmTask) {
+  dependsOn npmInstall
+  if (gitLabCICD) {
+    args = ['run', 'retireGitLabCICD']
+  } else {
+    args = ['run', 'retire']
+  }
+}
+
+check.dependsOn retire, integrationTest
+
+processResources.finalizedBy(generateOpenApi)
+assemble.dependsOn(sourceJar)
+assemble.dependsOn(bootJar)
+
+// Do something silly to ensure federal tasks that are called in Jenkins still effectively call jib
+task BuildDockerImage {
+  group "jib"
+  dependsOn jibDockerBuild
+}
+task PublishDockerImage {
+  group "jib"
+  dependsOn jib
+}
+
+jib {
+  use(PublishingKt) {
+    def publish = project.publish
+
+    from {
+      //base image
+      image = 'gcr.io/distroless/java:11'
+    }
+    to {
+      image = publish.repository()
+      auth {
+        username = publish.username
+        password = publish.password
+      }
+    }
+    container {
+      creationTime = publish.created.toString()
+      labels = publish.ociAnnotations()
+      ports = ['8080', '9090']
+    }
+  }
+}
+
+dependencyCheck {
+  analyzers.nodeAudit.enabled = false
+  analyzers.retirejs.enabled = false
+  analyzers.retirejs.forceupdate = false
+  analyzers.retirejs.filterNonVulnerable = false
+}

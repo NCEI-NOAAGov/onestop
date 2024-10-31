@@ -1,0 +1,24 @@
+apiVersion: v1
+description: A Helm chart to spin up the development tools of OneStop
+name: onestop-dev
+version: 0.3.0
+
+dependencies:
+#  - name: ingress-nginx
+#    version: ~2.3.0
+#    repository: "https://kubernetes.github.io/ingress-nginx"
+  - name: cp-helm-charts
+    version: ~0.4.0
+    repository: "https://confluentinc.github.io/cp-helm-charts/"
+  - name: kube-state-metrics
+    version: ~2.8.2
+    repository: "https://charts.helm.sh/stable"
+    condition: kube-state-metrics.enabled
+  - name: metrics-server
+    version: 2.11.4
+    repository: "https://charts.helm.sh/stable"
+    condition: metrics-server.enabled
+  - name: cas
+    version: ~0.1.0
+    repository: file://../cas
+    condition: cas.enabled

@@ -1,0 +1,74 @@
+---
+logging.level.org.springframework.security: DEBUG
+logging.level.org.springframework.web: DEBUG
+logging.level.org.cedar.gateway: DEBUG
+
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+      - id: user
+        uri: http://onestop-user:8080/
+        predicates:
+        - Path=/onestop/api/user/**
+        filters:
+        - RemoveRequestHeader=Cookie\,Set-Cookie
+        - StripPrefix=3
+        - TokenRelay=
+      - id: search
+        uri: http://onestop-search:8080/
+        predicates:
+        - Path=/onestop/api/search/**
+        filters:
+        - RemoveRequestHeader=Cookie\,Set-Cookie
+        - StripPrefix=3
+      - id: registry
+        uri: http://onestop-registry/
+        predicates:
+        - Path=/onestop/api/registry/**
+        filters:
+        - StripPrefix=3
+      - id: client
+        uri: http://onestop-client/
+        predicates:
+        - Path=/onestop/**
+        filters:
+        - StripPrefix=1
+  security:
+    oauth2:
+      client:
+        registration:
+          login-gov:
+            client-id: "urn:gov:gsa:openidconnect.profiles:sp:sso:noaa:onestop_user_8080"
+#            client-id: \${LOGIN_GOV_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - email
+        provider:
+          login-gov:
+            authorization-uri: https://idp.int.identitysandbox.gov/openid_connect/authorize?acr_values=http://idmanagement.gov/ns/assurance/ial/1
+            token-uri: https://idp.int.identitysandbox.gov/api/openid_connect/token
+            user-info-uri: https://idp.int.identitysandbox.gov/api/openid_connect/userinfo
+            jwk-set-uri: https://idp.int.identitysandbox.gov/api/openid_connect/certs
+            user-name-attribute: sub
+
+#login-gov:
+#  keystore:
+#    alias: \${PRIVATE_KEY_JWT_KEYSTORE_ALIAS}
+#    file: \${PRIVATE_KEY_JWT_KEYSTORE_FILE}
+#    password: \${PRIVATE_KEY_JWT_KEYSTORE_PASSWORD}
+#    type: \${PRIVATE_KEY_JWT_KEYSTORE_TYPE}
+login-gov:
+  keystore:
+    alias: logingov
+    file: src/main/resources/logingov.jks
+    password: password
+    type: JKS

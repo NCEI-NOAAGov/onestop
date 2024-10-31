@@ -1,0 +1,16 @@
+{
+  "name": "schema-deref",
+  "scripts": {
+    "build": "npm install && speccy resolve build/resources/main/openapi_base.yaml --json-schema > build/resources/main/static/openapi.yaml",
+    "retireGitLabCICD": "retire -p --jsrepo https://artifacts.ncei.noaa.gov/artifactory/jsretire-repository/jsrepository.json --noderepo https://artifacts.ncei.noaa.gov/artifactory/jsretire-repository/npmrepository.json --cacert /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem --exitwith 0",
+    "retire": "retire -p --exitwith 0",
+    "clean": "rm -rf node_modules && rm -rf build && rm -rf coverage",
+    "dependencies": "npm list -depth=8",
+    "auditFix": "npm audit fix",
+    "audit": "npm audit --trace-deprecation"
+  },
+  "devDependencies": {
+    "retire": "^2.2.1",
+    "speccy": "^0.11.0"
+  }
+}

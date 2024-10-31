@@ -1,0 +1,10 @@
+{{- if .Values.config }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "onestop-indexer.configname" . }}
+  labels: {{- include "onestop-indexer.labels" . | nindent 4 }}
+data:
+  application.yml: {{ .Values.config | toYaml | indent 4 }}
+{{- end }}

@@ -1,0 +1,12 @@
+spring.config.activate.on-profile: unit-test-blacklist-config
+
+trending:
+  additionalBlacklistedSearchTerms:
+  - +nwlon +ports
+  - '"digital elevation"'
+  - '"Gridded Satellite GOES"'
+  - '"NOAA Climate Data Record"'
+  blacklistedCollections:
+    - a
+    - b
+    - c

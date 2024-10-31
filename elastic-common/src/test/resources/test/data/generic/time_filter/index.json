@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "beginDate": {
+        "type": "date",
+        "format": "date_optional_time"
+      },
+      "beginYear": {
+        "type": "long"
+      },
+      "endDate": {
+        "type": "date",
+        "format": "date_optional_time"
+      },
+      "endYear": {
+        "type": "long"
+      }
+    }
+  }
+}

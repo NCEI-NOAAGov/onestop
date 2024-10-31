@@ -1,0 +1,225 @@
+apiVersion: v1
+entries:
+  onestop:
+  - apiVersion: v1
+    created: "2022-08-15T14:31:52.034645-06:00"
+    dependencies:
+    - name: onestop-client
+      repository: file://../onestop-client
+      version: 3.0.0-beta
+    - name: onestop-indexer
+      repository: file://../onestop-indexer
+      version: 3.0.0-beta
+    - name: onestop-parsalyzer
+      repository: file://../onestop-parsalyzer
+      version: 3.0.0-beta
+    - name: onestop-registry
+      repository: file://../onestop-registry
+      version: 3.0.0-beta
+    - name: onestop-search
+      repository: file://../onestop-search
+      version: 3.0.0-beta
+    - name: onestop-user
+      repository: file://../onestop-user
+      version: 3.0.0-beta
+    - name: onestop-gateway
+      repository: file://../onestop-gateway
+      version: 3.0.0-beta
+    description: A Helm chart for the OneStop system
+    digest: bfe9eec5c8b383c36b4a513a4f34d23542b47129ddb5c73421a73190df579990
+    name: onestop
+    urls:
+    - onestop-3.0.0-beta2.tgz
+    version: 3.0.0-beta2
+  - apiVersion: v1
+    created: "2022-08-15T14:31:52.030706-06:00"
+    dependencies:
+    - name: onestop-client
+      repository: file://../onestop-client
+      version: 3.0.0-beta
+    - name: onestop-indexer
+      repository: file://../onestop-indexer
+      version: 3.0.0-beta
+    - name: onestop-parsalyzer
+      repository: file://../onestop-parsalyzer
+      version: 3.0.0-beta
+    - name: onestop-registry
+      repository: file://../onestop-registry
+      version: 3.0.0-beta
+    - name: onestop-search
+      repository: file://../onestop-search
+      version: 3.0.0-beta
+    - name: onestop-user
+      repository: file://../onestop-user
+      version: 3.0.0-beta
+    - name: onestop-gateway
+      repository: file://../onestop-gateway
+      version: 3.0.0-beta
+    description: A Helm chart for the OneStop system
+    digest: c0ed35939773252d6e885f1eb4a228901c6f31789ac871e120a7a995f7d9ab60
+    name: onestop
+    urls:
+    - onestop-3.0.0-beta.tgz
+    version: 3.0.0-beta
+  - apiVersion: v1
+    created: "2022-08-15T14:31:52.026625-06:00"
+    dependencies:
+    - name: onestop-client
+      repository: file://../onestop-client
+      version: 3.0.0-alpha
+    - name: onestop-indexer
+      repository: file://../onestop-indexer
+      version: 3.0.0-alpha
+    - name: onestop-parsalyzer
+      repository: file://../onestop-parsalyzer
+      version: 3.0.0-alpha
+    - name: onestop-registry
+      repository: file://../onestop-registry
+      version: 3.0.0-alpha
+    - name: onestop-search
+      repository: file://../onestop-search
+      version: 3.0.0-alpha
+    - name: onestop-user
+      repository: file://../onestop-user
+      version: 3.0.0-alpha
+    description: A Helm chart for the OneStop system
+    digest: b857eba652abb0bdc81a033d106f74b86e85c90655d3b27c33db0319dcbab7c3
+    name: onestop
+    urls:
+    - onestop-3.0.0-alpha.tgz
+    version: 3.0.0-alpha
+  - apiVersion: v1
+    appVersion: 2.4.0
+    created: "2022-08-15T14:31:52.022801-06:00"
+    dependencies:
+    - condition: cp.enabled,global.cp.enabled
+      name: cp-helm-charts
+      repository: https://confluentinc.github.io/cp-helm-charts/
+      version: ~0.1.0
+    - condition: elasticsearch.enabled,global.elasticsearch.enabled
+      name: elasticsearch
+      repository: file://../elasticsearch
+      version: ~0.1.0
+    - name: onestop-admin
+      repository: file://../onestop-admin
+      version: ~0.1.0
+    - name: onestop-client
+      repository: file://../onestop-client
+      version: ~0.1.0
+    - name: onestop-manager
+      repository: file://../onestop-manager
+      version: ~0.4.0
+    - name: onestop-registry
+      repository: file://../onestop-registry
+      version: ~0.4.0
+    - name: onestop-search
+      repository: file://../onestop-search
+      version: ~0.1.0
+    description: A Helm chart for the OneStop system
+    digest: aa04366b561b977aaa8a8f1712c5711bafe4bc8512793bafdcf9b83dcc8f9e2c
+    name: onestop
+    urls:
+    - onestop-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v1
+    appVersion: 2.4.0
+    created: "2022-08-15T14:31:52.012148-06:00"
+    dependencies:
+    - condition: cp.enabled,global.cp.enabled
+      name: cp-helm-charts
+      repository: https://confluentinc.github.io/cp-helm-charts/
+      version: ~0.1.0
+    - condition: elasticsearch.enabled,global.elasticsearch.enabled
+      name: elasticsearch
+      repository: file://../elasticsearch
+      version: ~0.1.0
+    - name: onestop-admin
+      repository: file://../onestop-admin
+      version: ~0.1.0
+    - name: onestop-client
+      repository: file://../onestop-client
+      version: ~0.1.0
+    - name: onestop-manager
+      repository: file://../onestop-manager
+      version: ~0.3.0
+    - name: onestop-registry
+      repository: file://../onestop-registry
+      version: ~0.3.0
+    - name: onestop-search
+      repository: file://../onestop-search
+      version: ~0.1.0
+    description: A Helm chart for the OneStop system
+    digest: 59a0b6cbdbb1f58f70061fac2a45fc58045fce3fd32f6d9b24aa4e37e4403edf
+    name: onestop
+    urls:
+    - onestop-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v1
+    appVersion: 2.2.0
+    created: "2022-08-15T14:31:52.003648-06:00"
+    dependencies:
+    - condition: elasticsearch.enabled,global.elasticsearch.enabled
+      name: elasticsearch
+      repository: file://../elasticsearch
+      version: ~0.1.0
+    - name: api-admin
+      repository: file://../api-admin
+      version: ~0.1.0
+    - name: api-search
+      repository: file://../api-search
+      version: ~0.1.0
+    - name: client
+      repository: file://../client
+      version: ~0.1.0
+    description: A Helm chart for the OneStop system
+    digest: a38e89b18d2fdb850b206cceb3525fb36a0ed6ef78a10765eda3b0b2cc3f7895
+    name: onestop
+    urls:
+    - onestop-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v1
+    appVersion: 2.2.0
+    created: "2022-08-15T14:31:52.000823-06:00"
+    dependencies:
+    - condition: elasticsearch.enabled,global.elasticsearch.enabled
+      name: elasticsearch
+      repository: file://../elasticsearch
+      version: ~0.1.0
+    - name: api-admin
+      repository: file://../api-admin
+      version: ~0.1.0
+    - name: api-search
+      repository: file://../api-search
+      version: ~0.1.0
+    - name: client
+      repository: file://../client
+      version: ~0.1.0
+    description: A Helm chart for the OneStop system
+    digest: 965fd23b5088778b98daec5564c03db77261bf8b1f7077bef8b53ddd0bbb76b8
+    name: onestop
+    urls:
+    - onestop-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v1
+    appVersion: 2.1.0
+    created: "2022-08-15T14:31:51.996299-06:00"
+    dependencies:
+    - name: api-admin
+      repository: file://../api-admin
+      version: ~0.1.0
+    - name: api-search
+      repository: file://../api-search
+      version: ~0.1.0
+    - name: api-user
+      repository: file://../api-user
+      version: ~0.1.0
+    - name: client
+      repository: file://../client
+      version: ~0.1.0
+    description: A Helm chart for the OneStop system
+    digest: 0b792e2abf7c8c66bbf4f663cbda50d85b6fa23ca8bd2acdfa34d87f3a61317f
+    name: onestop
+    urls:
+    - onestop-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-08-15T14:31:51.993322-06:00"

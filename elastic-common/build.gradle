@@ -1,0 +1,65 @@
+sourceCompatibility = 11
+targetCompatibility = 11
+
+// repositories { // TODO for mapbox geojson
+//   google()
+// }
+
+dependencies {
+    def Versions = project.Versions
+
+    compileOnly("org.slf4j:slf4j-api:${Versions.SLF4J}")
+
+    implementation(project(':data-common'))
+    implementation("org.elasticsearch.client:elasticsearch-rest-client:${Versions.ELASTIC}")
+    implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:${Versions.ELASTIC}")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${Versions.JACKSON_CORE}")
+    // implementation 'com.mapbox.mapboxsdk:mapbox-sdk-geojson:5.3.0' // TODO use this with EsMapping.kt and schemas for geojson object?
+
+    testImplementation("org.codehaus.groovy:groovy:${Versions.GROOVY}")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:testcontainers:${Versions.TEST_CONTAINERS}")
+    testImplementation("org.testcontainers:elasticsearch:${Versions.TEST_CONTAINERS}")
+}
+
+configurations {
+    testElastic.extendsFrom testCompile
+}
+
+// needed to share as local project dependency
+// https://stackoverflow.com/questions/54486199/multi-module-gradle-project-migrate-from-spring-boot-1-5-to-2-1#answer-54618449
+jar {
+    enabled = true
+}
+
+task testJar(type: Jar) {
+    archiveClassifier.set('test')
+    from sourceSets.test.output
+}
+
+artifacts {
+    testElastic testJar
+}
+
+bootJar {
+    enabled = false
+}
+
+// TODO make compile depend on esMappingGenerate?
+// tasks.esMappingGenerate {
+//   outputDir = "$buildDir/esGenerated"
+//   // setOutputDir(file("$buildDir/esGenerated"))
+// }
+// assemble.mustRunAfter(esMappingGenerate)
+// assemble.dependsOn(esMappingGenerate) // TODO this is wrong because after cleaning up build dir, running gradle indexer:test fails unless you explicitly run elastic-common:build first
+
+// compileJava.mustRunAfter(esMappingGenerate)
+compileJava.dependsOn(esMappingGenerate)
+sourceSets {
+  main {
+    java {
+      srcDir("$buildDir/esGenerated")
+    }
+  }
+}

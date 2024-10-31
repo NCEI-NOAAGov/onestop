@@ -1,0 +1,171 @@
+{
+"id": null,
+"type": "collection",
+"attributes": {
+    "fileIdentifier": "gov.super.important:PARENT-ID",
+    "doi": "doi:10.5072/FK2TEST",
+    "title": "Important Organization's Important File's Super Important Title",
+    "description": "Wall of overly detailed, super informative, extra important text.",
+    "keywords": [
+        "SIO > Super Important Organization",
+        "Air temperature",
+        "Water temperature",
+        "Wind speed",
+        "Wind direction",
+        "Atmosphere > Atmospheric Temperature > Surface Temperature > Dew Point Temperature",
+        "Oceans > Salinity/Density > Salinity",
+        "Volcanoes > This Keyword > Is Invalid",
+        "Geographic Region > Arctic",
+        "Ocean > Atlantic Ocean > North Atlantic Ocean > Gulf Of Mexico",
+        "Liquid Earth > This Keyword > Is Invalid"
+    ],
+    "gcmdScienceServices": [
+
+    ],
+    "gcmdScience": [
+        "Atmosphere > Atmospheric Temperature > Surface Temperature > Dew Point Temperature",
+        "Atmosphere > Atmospheric Temperature > Surface Temperature",
+        "Atmosphere > Atmospheric Temperature",
+        "Atmosphere",
+        "Oceans > Salinity/Density > Salinity",
+        "Oceans > Salinity/Density",
+        "Oceans",
+        "Volcanoes > This Keyword > Is Invalid",
+        "Volcanoes > This Keyword",
+        "Volcanoes"
+    ],
+    "gcmdLocations": [
+        "Geographic Region > Arctic",
+        "Geographic Region",
+        "Ocean > Atlantic Ocean > North Atlantic Ocean > Gulf Of Mexico",
+        "Ocean > Atlantic Ocean > North Atlantic Ocean",
+        "Ocean > Atlantic Ocean",
+        "Ocean",
+        "Liquid Earth > This Keyword > Is Invalid",
+        "Liquid Earth > This Keyword",
+        "Liquid Earth"
+    ],
+    "gcmdInstruments": [
+
+    ],
+    "gcmdPlatforms": [
+
+    ],
+    "gcmdProjects": [
+
+    ],
+    "gcmdDataCenters": [
+        "SIO > Super Important Organization"
+    ],
+    "gcmdHorizontalResolution": [
+
+    ],
+    "gcmdVerticalResolution": [
+
+    ],
+    "gcmdTemporalResolution": [
+
+    ],
+    "beginDate": "2005-05-09T00:00:00.000Z",
+    "beginYear": 2005,
+    "endYear": "",
+    "spatialBounding": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    -180.0,
+                    -90.0
+                ],
+                [
+                    180.0,
+                    -90.0
+                ],
+                [
+                    180.0,
+                    90.0
+                ],
+                [
+                    -180.0,
+                    90.0
+                ],
+                [
+                    -180.0,
+                    -90.0
+                ]
+            ]
+        ]
+    },
+    "isGlobal": true,
+    "dataFormats": [
+        {
+            "name": "NETCDF",
+            "version": "classic"
+        },
+        {
+            "name": "CSV",
+            "version": null
+        },
+        {
+            "name": "ASCII",
+            "version": null
+        },
+        {
+            "name": "NETCDF",
+            "version": "4"
+        }
+    ],
+    "links": [
+        {
+            "linkName": "Super Important Access Link",
+            "linkProtocol": "HTTP",
+            "linkUrl": "http://www.example.com",
+            "linkDescription": "Everything Important, All In One Place",
+            "linkFunction": "search"
+        }
+    ],
+    "individualNames": [
+        "John Smith",
+        ""
+    ],
+    "organizationNames": [
+        "University of Awesome",
+        "Super Important Organization"
+    ],
+    "thumbnail": "https://www.example.com/exportImage?soCool=yes&format=png",
+    "citeAsStatements": [
+
+    ],
+    "crossReferences": [
+        {
+            "title": "[TITLE OF PUBLICATION]",
+            "date": "9999-01-01",
+            "links": [
+                {
+                "linkName": null,
+                "linkProtocol": null,
+                "linkUrl": "HTTPS://WWW.EXAMPLE.COM",
+                "linkDescription": "[DESCRIPTION OF URL]",
+                "linkFunction": "information"
+                }
+            ]
+        }
+    ],
+    "largerWorks": [
+        {
+            "title": "[TITLE OF PROJECT]",
+            "date": "9999-10-10",
+            "links": []
+        }
+    ],
+    "useLimitation": null,
+    "legalConstraints": [
+
+    ],
+    "accessFeeStatement": null,
+    "orderingInstructions": null,
+    "edition": null,
+    "dsmmAverage": 2.6666666667,
+    "stagedDate": null
+  }
+}

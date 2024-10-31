@@ -1,0 +1,20 @@
+onestop-client:
+  enabled: true
+onestop-indexer:
+  enabled: true
+onestop-parsalyzer:
+  enabled: true
+onestop-registry:
+  enabled: true
+onestop-search:
+  enabled: true
+onestop-user:
+  enabled: true
+onestop-gateway:
+  enabled: true
+###############################################################################
+# Nginx Ingress
+###############################################################################
+controller:
+  admissionWebhooks:
+    enabled: false

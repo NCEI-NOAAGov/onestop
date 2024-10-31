@@ -1,0 +1,52 @@
+apply plugin: 'org.springframework.boot' // version declared in top-level buildscript
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'groovy'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+dependencies {
+  def Versions = project.Versions
+
+  testImplementation(project(':elastic-common'))
+  testImplementation(project(path: ':elastic-common', configuration: 'testElastic'))
+
+  testImplementation "org.codehaus.groovy:groovy:${Versions.GROOVY}"
+  testImplementation "org.codehaus.groovy:groovy-json:${Versions.GROOVY}"
+  testImplementation "org.spockframework:spock-spring:${Versions.SPOCK}"
+  testImplementation "org.spockframework:spock-core:${Versions.SPOCK}"
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-web'
+  testImplementation "org.testcontainers:testcontainers:${Versions.TEST_CONTAINERS}"
+}
+
+test {
+
+  doFirst {
+    // the elasticsearch brought up by docker-compose is referenced as 'localhost' from the base 'machine';
+    // whereas, the docker compose sets the host env var for the search/admin APIs to 'elasticsearch' name to resolve it
+    // between docker containers
+    systemProperty 'elasticsearch.host', 'localhost'
+    systemProperty 'elasticsearch.port', '9200'
+    // in case we want to switch docker compose files based on environment, etc...
+    systemProperty 'docker.compose.file', 'src/test/resources/docker-compose-e2e.yml'
+  }
+
+  dependsOn rootProject.getTasksByName('BuildDockerImage', true)
+  mustRunAfter rootProject.getTasksByName('integrationTest', true)
+}
+
+processResources {
+  def Versions = project.Versions
+
+  outputs.upToDateWhen { false }
+  filesMatching("**/docker-compose-e2e.yml") {
+    expand([
+        esVersion: Versions.ELASTIC
+    ])
+  }
+}
+
+bootJar {
+  enabled = false
+}

@@ -1,0 +1,155 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "onestop-registry.fullname" . }}
+  labels: {{- include "onestop-registry.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ include "onestop-registry.fullname" . }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels:
+      {{- include "onestop-registry.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "onestop-registry.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- with .Values.config }}
+        checksum/config: {{ . | sha256sum }}
+        {{- end }}
+    spec:
+      {{- if .Values.debug }}
+      shareProcessNamespace: true
+      {{- end }}
+      securityContext:
+        fsGroup: 102
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      {{- if .Values.debug }}
+      - name: debug
+        image: centos
+        command: ["tail", "-f", "/dev/null"]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+      {{- end }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: db
+          containerPort: 9090
+          protocol: TCP
+        {{- if .Values.debug }}
+        - name: jdwp
+          containerPort: 5005
+        {{- end }}
+        env:
+        # EXPORT ACTIVE SPRING PROFILES TO TELL SPRING WHICH FEATURES TO ENABLE
+        # the loop is making a comma delimited list for multi-feature handling
+        - name: SPRING_PROFILES_ACTIVE
+          value: '{{ $active := dict "profiles" (list) -}}
+                  {{- range $feature, $enabled := .Values.features -}}
+                    {{- if $enabled -}}
+                      {{- $noop := $feature | append $active.profiles | set $active "profiles" -}}
+                    {{- end -}}
+                  {{- end -}}
+                  {{- join "," $active.profiles }}'
+        {{- if .Values.debug }}
+        - name: JAVA_TOOL_OPTIONS
+          value: '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'
+        {{- end }}
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "{{ include "onestop-registry.kafka.bootstrap.servers" . }}"
+        - name: KAFKA_SCHEMA_REGISTRY_URL
+          value: "{{ include "onestop-registry.kafka.schema.registry.url" . }}"
+        - name: KAFKA_STATE_DIR
+          value: "/var/lib/registry/data"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: KAFKA_APPLICATION_SERVER
+          value: "${POD_IP}:9090"
+        {{- if .Values.config }}
+        - name: spring.config.additional-location
+          value: /etc/conf/application.yaml
+        {{- end }}
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/registry/data
+        {{- if .Values.config }}
+        - name: config
+          mountPath: /etc/conf
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 2
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          periodSeconds: 10
+          failureThreshold: 1
+      {{- if .Values.config }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ include "onestop-registry.fullname" . }}-config
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+      {{- with .Values.affinity }}
+        {{- toYaml . | nindent 8 }}
+      {{- else }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                  - {{ include "onestop-registry.name" . }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- with .Values.volume.storageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.volume.size }}

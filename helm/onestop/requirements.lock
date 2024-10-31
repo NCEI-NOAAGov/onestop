@@ -1,0 +1,24 @@
+dependencies:
+- name: onestop-client
+  repository: file://../onestop-client
+  version: 3.0.0-beta
+- name: onestop-indexer
+  repository: file://../onestop-indexer
+  version: 3.0.0-beta
+- name: onestop-parsalyzer
+  repository: file://../onestop-parsalyzer
+  version: 3.0.0-beta
+- name: onestop-registry
+  repository: file://../onestop-registry
+  version: 3.0.0-beta
+- name: onestop-search
+  repository: file://../onestop-search
+  version: 3.0.0-beta
+- name: onestop-user
+  repository: file://../onestop-user
+  version: 3.0.0-beta
+- name: onestop-gateway
+  repository: file://../onestop-gateway
+  version: 3.0.0-beta
+digest: sha256:e91e72c3b0883da54eceac1ee16de219a61a41885dfc26a691c003a32c4a3661
+generated: "2020-11-16T21:47:52.820137-07:00"

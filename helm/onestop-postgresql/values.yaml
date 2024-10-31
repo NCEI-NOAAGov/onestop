@@ -1,0 +1,46 @@
+###############################################################################
+# POSTGRES (for user api)  DEV ONLY! Override and encrypt these in production
+###############################################################################
+postgresql:
+  postgresqlDatabase: user
+  postgresqlUsername: postgres
+  postgresqlPassword: foamcat
+  postgresqlPostgresPassword: foamcat
+###############################################################################
+# PGADMIN (for user api postgres)
+###############################################################################
+pgadmin4:
+  env:
+    email: postgres@none.com
+    password: foamcat
+  serverDefinitions:
+    enabled: true
+    servers: |-
+      "1": {
+        "Name": "User API Database",
+        "Group": "Servers",
+        "Port": 5432,
+        "Username": "postgres",
+        "Host": "onestop-postgresql",
+        "SSLMode": "prefer",
+        "MaintenanceDB": "user"
+      },
+      "2": {
+        "Name": "Development-Sandbox",
+        "Group": "Servers",
+        "Port": 5432,
+        "Username": "postgres",
+        "Host": "onestop-postgresql",
+        "SSLMode": "prefer",
+        "MaintenanceDB": "postgres"
+      }
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/configuration-snippet: |
+        proxy_set_header X-Script-Name /pgadmin4;
+    hosts:
+      - host: "localhost"
+        paths:
+          - path: "/pgadmin4(/|$)(.*)"
+            pathType: ImplementationSpecific

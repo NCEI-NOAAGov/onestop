@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user
+    username: postgres
+    password: foamcat
+    initialization-mode: always
+    continue-on-error: false
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    properties: # Hibernate Properties The SQL dialect makes Hibernate generate better SQL for the chosen database
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate: # Hibernate ddl auto (create, create-drop, validate, update)
+      ddl-auto: create-drop
+    generate-ddl: false
+
+#  spring.datasource.initialize=true
+#  spring.datasource.schema=classpath:/schema.sql
+#  spring.datasource.continue-on-error=true
