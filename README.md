@@ -1,4 +1,10 @@
-# OneStop Stack
+# ⚠️ [!CAUTION] ⚠️
+
+### This repository has been archived and is no longer maintained.
+### The code is provided for historical reference and may contain unpatched or unknown vulnerabilities.
+### It should not be used in production systems.
+
+## OneStop Stack
 
 [![Build Status](https://circleci.com/gh/cedardevs/onestop.svg?style=svg)](https://circleci.com/gh/cedardevs/onestop)
 [![Code Coverage](https://codecov.io/gh/cedardevs/onestop/branch/master/graph/badge.svg)](https://codecov.io/gh/cedardevs/onestop)
@@ -11,11 +17,11 @@ indexed to support a wide range of search and discovery capabilities via Elastic
 
 It is being developed on a grant by a team of researchers from the University of Colorado (more legal info below).
 
-## Documentation
+### Documentation
 
 For Overview, Usage, Deployment, and Development information about this project, check out the [docs](/docs).
 
-## Legal
+### Legal
 
 This software was developed under the OneStop project: 1553647 and MSN project: 1555839,
 NOAA award numbers NA12OAR4320137 and NA17OAR4320101 respectively to the Cooperative Institute
